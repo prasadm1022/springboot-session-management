@@ -1,0 +1,12 @@
+logging.level.org.hibernate.SQL: DEBUG
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://docker:mongopw@localhost:49155
+      database: upworkmongodb
+
+upwork.prototype.jwtSecret: jwtUpworkSecretKey
+
+server.port: 8060
