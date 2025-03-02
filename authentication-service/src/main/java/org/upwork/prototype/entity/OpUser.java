@@ -1,5 +1,20 @@
-package org.upwork.prototype.entity;
+/*
+ * Copyright 2022 Prasad Madusanka Basnayaka
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+package org.upwork.prototype.entity;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,55 +37,52 @@ import java.util.Objects;
 @Entity
 @Getter
 @Setter
-@Table( name = "OP_USER" )
-public class OpUser implements Serializable
-{
+@Table(name = "OP_USER")
+public class OpUser implements Serializable {
     @Id
-    @GeneratedValue( strategy = GenerationType.SEQUENCE, generator = "id_seq_user" )
-    @SequenceGenerator( name = "id_seq_user", sequenceName = "USER_ID_SEQ", allocationSize = 1 )
-    @Column( name = "ID" )
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_seq_user")
+    @SequenceGenerator(name = "id_seq_user", sequenceName = "USER_ID_SEQ", allocationSize = 1)
+    @Column(name = "ID")
     private Long id;
 
     @NotBlank
-    @Column( name = "NAME" )
-    @Size( max = 128 )
+    @Column(name = "NAME")
+    @Size(max = 128)
     private String name;
 
     @NotBlank
-    @Column( name = "USERNAME" )
-    @Size( max = 128 )
+    @Column(name = "USERNAME")
+    @Size(max = 128)
     private String username;
 
     @NotBlank
-    @Column( name = "EMAIL" )
-    @Size( max = 128 )
+    @Column(name = "EMAIL")
+    @Size(max = 128)
     private String email;
 
     @NotBlank
-    @Column( name = "PASSWORD" )
-    @Size( max = 1024 )
+    @Column(name = "PASSWORD")
+    @Size(max = 1024)
     private String password;
 
-    @OneToMany( mappedBy = "opUser", cascade = { CascadeType.ALL }, fetch = FetchType.EAGER )
+    @OneToMany(mappedBy = "opUser", cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     private List<OpUserRole> opUserRoles = new ArrayList<>();
 
     @Override
-    public boolean equals( Object o )
-    {
-        if( this == o ) return true;
-        if( o == null || getClass() != o.getClass() ) return false;
-        OpUser opUser = ( OpUser ) o;
-        return Objects.equals( id, opUser.id )
-                       && Objects.equals( name, opUser.name )
-                       && Objects.equals( username, opUser.username )
-                       && Objects.equals( email, opUser.email )
-                       && Objects.equals( password, opUser.password )
-                       && Objects.equals( opUserRoles, opUser.opUserRoles );
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OpUser opUser = (OpUser) o;
+        return Objects.equals(id, opUser.id)
+                && Objects.equals(name, opUser.name)
+                && Objects.equals(username, opUser.username)
+                && Objects.equals(email, opUser.email)
+                && Objects.equals(password, opUser.password)
+                && Objects.equals(opUserRoles, opUser.opUserRoles);
     }
 
     @Override
-    public int hashCode()
-    {
-        return Objects.hash( id, name, username, email, password, opUserRoles );
+    public int hashCode() {
+        return Objects.hash(id, name, username, email, password, opUserRoles);
     }
 }

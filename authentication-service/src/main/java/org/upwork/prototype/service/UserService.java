@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 Prasad Madusanka Basnayaka
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.upwork.prototype.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +47,7 @@ import java.util.List;
  */
 
 @Service
-public class UserService implements IUserService, UserDetailsService
-{
+public class UserService implements IUserService, UserDetailsService {
     @Autowired
     private IUserRepository userRepository;
 
@@ -46,119 +61,90 @@ public class UserService implements IUserService, UserDetailsService
     private RoleMapper roleMapper;
 
     @Override
-    public UserDetails loadUserByUsername( String username ) throws UsernameNotFoundException
-    {
-        try
-        {
-            OpUser opUser = userRepository.findByUsername( username );
-            if( opUser == null )
-            {
-                throw new UsernameNotFoundException( "User not found..." );
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        try {
+            OpUser opUser = userRepository.findByUsername(username);
+            if (opUser == null) {
+                throw new UsernameNotFoundException("User not found...");
             }
 
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            for( OpUserRole opUserRole : opUser.getOpUserRoles() )
-            {
-                authorities.add( new SimpleGrantedAuthority( opUserRole.getOpRole().getName() ) );
+            for (OpUserRole opUserRole : opUser.getOpUserRoles()) {
+                authorities.add(new SimpleGrantedAuthority(opUserRole.getOpRole().getName()));
             }
 
-            return new User( opUser.getUsername(), opUser.getPassword(), authorities );
-        }
-        catch( Exception ex )
-        {
-            throw new UsernameNotFoundException( ex.getMessage(), ex );
+            return new User(opUser.getUsername(), opUser.getPassword(), authorities);
+        } catch (Exception ex) {
+            throw new UsernameNotFoundException(ex.getMessage(), ex);
         }
     }
 
     @Override
-    public Response<UserDTO> searchUser( String username ) throws ResponseError
-    {
-        try
-        {
+    public Response<UserDTO> searchUser(String username) throws ResponseError {
+        try {
             List<UserDTO> response = new ArrayList<>();
-            OpUser opUser = userRepository.findByUsername( username );
-            if( opUser != null )
-            {
-                response.add( userMapper.toDto( opUser ) );
+            OpUser opUser = userRepository.findByUsername(username);
+            if (opUser != null) {
+                response.add(userMapper.toDto(opUser));
             }
-            return new Response<>( response, response.size() );
-        }
-        catch( Exception ex )
-        {
-            throw new ResponseError( ex );
+            return new Response<>(response, response.size());
+        } catch (Exception ex) {
+            throw new ResponseError(ex);
         }
     }
 
     @Override
-    public Response<RoleDTO> searchRole( String roleName ) throws ResponseError
-    {
-        try
-        {
+    public Response<RoleDTO> searchRole(String roleName) throws ResponseError {
+        try {
             List<RoleDTO> response = new ArrayList<>();
-            OpRole opRole = roleRepository.findByName( roleName );
-            if( opRole != null )
-            {
-                response.add( roleMapper.toDto( opRole ) );
+            OpRole opRole = roleRepository.findByName(roleName);
+            if (opRole != null) {
+                response.add(roleMapper.toDto(opRole));
             }
-            return new Response<>( response, response.size() );
-        }
-        catch( Exception ex )
-        {
-            throw new ResponseError( ex );
+            return new Response<>(response, response.size());
+        } catch (Exception ex) {
+            throw new ResponseError(ex);
         }
     }
 
     @Override
-    public Response<UserDTO> saveUser( UserDTO user ) throws ResponseError
-    {
-        try
-        {
-            OpUser opUser = userMapper.toEntity( user );
-            opUser.setPassword( new BCryptPasswordEncoder().encode( opUser.getPassword() ) );
+    public Response<UserDTO> saveUser(UserDTO user) throws ResponseError {
+        try {
+            OpUser opUser = userMapper.toEntity(user);
+            opUser.setPassword(new BCryptPasswordEncoder().encode(opUser.getPassword()));
 
-            OpUser saveResponse = userRepository.save( opUser );
-            return new Response<>( userMapper.toDto( saveResponse ) );
-        }
-        catch( Exception ex )
-        {
-            throw new ResponseError( ex );
+            OpUser saveResponse = userRepository.save(opUser);
+            return new Response<>(userMapper.toDto(saveResponse));
+        } catch (Exception ex) {
+            throw new ResponseError(ex);
         }
     }
 
     @Override
-    public Response<RoleDTO> saveRole( RoleDTO role ) throws ResponseError
-    {
-        try
-        {
-            OpRole saveResponse = roleRepository.save( roleMapper.toEntity( role ) );
-            return new Response<>( roleMapper.toDto( saveResponse ) );
-        }
-        catch( Exception ex )
-        {
-            throw new ResponseError( ex );
+    public Response<RoleDTO> saveRole(RoleDTO role) throws ResponseError {
+        try {
+            OpRole saveResponse = roleRepository.save(roleMapper.toEntity(role));
+            return new Response<>(roleMapper.toDto(saveResponse));
+        } catch (Exception ex) {
+            throw new ResponseError(ex);
         }
     }
 
     @Override
-    public Response<Void> addRoleToUser( String username, String roleName ) throws ResponseError
-    {
-        try
-        {
-            OpUser opUser = userRepository.findByUsername( username );
-            OpRole opRole = roleRepository.findByName( roleName );
-            if( opUser != null && opRole != null )
-            {
+    public Response<Void> addRoleToUser(String username, String roleName) throws ResponseError {
+        try {
+            OpUser opUser = userRepository.findByUsername(username);
+            OpRole opRole = roleRepository.findByName(roleName);
+            if (opUser != null && opRole != null) {
                 OpUserRole opUserRole = new OpUserRole();
-                opUserRole.setOpUser( opUser );
-                opUserRole.setOpRole( opRole );
-                opUser.getOpUserRoles().add( opUserRole );
-                userRepository.save( opUser );
+                opUserRole.setOpUser(opUser);
+                opUserRole.setOpRole(opRole);
+                opUser.getOpUserRoles().add(opUserRole);
+                userRepository.save(opUser);
             }
             return new Response<>();
-        }
-        catch( Exception ex )
-        {
-            throw new ResponseError( ex );
+        } catch (Exception ex) {
+            throw new ResponseError(ex);
         }
     }
 }

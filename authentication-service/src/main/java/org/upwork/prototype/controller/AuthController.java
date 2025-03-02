@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 Prasad Madusanka Basnayaka
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.upwork.prototype.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,48 +41,36 @@ import javax.servlet.http.HttpServletRequest;
  */
 
 @RestController
-public class AuthController implements IAuthController
-{
+public class AuthController implements IAuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
-    public ResponseEntity<ResponseWrapper<JwtResponse>> login( HttpServletRequest request, UserDTO user )
-    {
-        try
-        {
-            Authentication authentication = authenticationManager.authenticate( new UsernamePasswordAuthenticationToken( user.getUsername(), user.getPassword() ) );
-            SecurityContextHolder.getContext().setAuthentication( authentication );
-            JwtResponse accessToken = jwtTokenProvider.generateToken( user );
-            return ResponseUtil.wrap( new Response<>( accessToken ) );
-        }
-        catch( Exception ex )
-        {
-            return ResponseUtil.wrap( ex );
+    public ResponseEntity<ResponseWrapper<JwtResponse>> login(HttpServletRequest request, UserDTO user) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            JwtResponse accessToken = jwtTokenProvider.generateToken(user);
+            return ResponseUtil.wrap(new Response<>(accessToken));
+        } catch (Exception ex) {
+            return ResponseUtil.wrap(ex);
         }
     }
 
     @Override
-    public ResponseEntity<ResponseWrapper<Authentication>> validate( TokenBodyDTO token )
-    {
-        try
-        {
-            boolean isValid = jwtTokenProvider.validateToken( token.getToken() );
-            if( isValid )
-            {
-                UsernamePasswordAuthenticationToken authentication = jwtTokenProvider.getAuthentication( token.getToken() );
-                return ResponseUtil.wrap( new Response<>( authentication ) );
+    public ResponseEntity<ResponseWrapper<Authentication>> validate(TokenBodyDTO token) {
+        try {
+            boolean isValid = jwtTokenProvider.validateToken(token.getToken());
+            if (isValid) {
+                UsernamePasswordAuthenticationToken authentication = jwtTokenProvider.getAuthentication(token.getToken());
+                return ResponseUtil.wrap(new Response<>(authentication));
+            } else {
+                throw new Exception("Invalid JWT");
             }
-            else
-            {
-                throw new Exception( "Invalid JWT" );
-            }
-        }
-        catch( Exception ex )
-        {
-            return ResponseUtil.wrap( ex );
+        } catch (Exception ex) {
+            return ResponseUtil.wrap(ex);
         }
     }
 }
