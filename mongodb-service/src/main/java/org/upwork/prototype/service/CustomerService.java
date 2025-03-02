@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 Prasad Madusanka Basnayaka
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.upwork.prototype.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +48,7 @@ import java.util.stream.Collectors;
  */
 
 @Service
-public class CustomerService implements ICustomerService
-{
+public class CustomerService implements ICustomerService {
     @Autowired
     private ICustomerRepository customerRepository;
 
@@ -47,126 +62,96 @@ public class CustomerService implements ICustomerService
     private CustomerMapper customerMapper;
 
     @Override
-    public Response<Customer> searchCustomers( CustomerSearchCriteria customerSearchCriteria ) throws ResponseError
-    {
+    public Response<Customer> searchCustomers(CustomerSearchCriteria customerSearchCriteria) throws ResponseError {
         int page = 0;
-        if( customerSearchCriteria.getSize() != 0 )
-        {
+        if (customerSearchCriteria.getSize() != 0) {
             page = customerSearchCriteria.getStart() / customerSearchCriteria.getSize();
         }
-        Sort.Direction sortDirection = ( customerSearchCriteria.getSortDirection() != null && customerSearchCriteria.getSortDirection() == SortDirection.DESC ) ? Sort.Direction.DESC : Sort.Direction.ASC;
-        String sortBy = StringUtils.hasText( customerSearchCriteria.getSortBy() ) ? customerSearchCriteria.getSortBy() : "id";
-        customerSearchCriteria.setSize( Integer.MAX_VALUE );
-        PageRequest pageRequest = PageRequest.of( page, customerSearchCriteria.getSize(), sortDirection, sortBy );
-        try
-        {
-            Query query = new Query().with( pageRequest );
-            if( customerSearchCriteria.getIds() != null && !customerSearchCriteria.getIds().isEmpty() )
-            {
-                query.addCriteria( Criteria.where( "id" ).in( customerSearchCriteria.getIds() ) );
+        Sort.Direction sortDirection = (customerSearchCriteria.getSortDirection() != null && customerSearchCriteria.getSortDirection() == SortDirection.DESC) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        String sortBy = StringUtils.hasText(customerSearchCriteria.getSortBy()) ? customerSearchCriteria.getSortBy() : "id";
+        customerSearchCriteria.setSize(Integer.MAX_VALUE);
+        PageRequest pageRequest = PageRequest.of(page, customerSearchCriteria.getSize(), sortDirection, sortBy);
+        try {
+            Query query = new Query().with(pageRequest);
+            if (customerSearchCriteria.getIds() != null && !customerSearchCriteria.getIds().isEmpty()) {
+                query.addCriteria(Criteria.where("id").in(customerSearchCriteria.getIds()));
             }
-            if( customerSearchCriteria.getFirstName() != null )
-            {
-                query.addCriteria( Criteria.where( "firstName" ).is( customerSearchCriteria.getFirstName() ) );
+            if (customerSearchCriteria.getFirstName() != null) {
+                query.addCriteria(Criteria.where("firstName").is(customerSearchCriteria.getFirstName()));
             }
-            if( customerSearchCriteria.getLastName() != null )
-            {
-                query.addCriteria( Criteria.where( "lastName" ).is( customerSearchCriteria.getLastName() ) );
+            if (customerSearchCriteria.getLastName() != null) {
+                query.addCriteria(Criteria.where("lastName").is(customerSearchCriteria.getLastName()));
             }
-            if( customerSearchCriteria.getAddress() != null )
-            {
-                query.addCriteria( Criteria.where( "address" ).is( customerSearchCriteria.getAddress() ) );
+            if (customerSearchCriteria.getAddress() != null) {
+                query.addCriteria(Criteria.where("address").is(customerSearchCriteria.getAddress()));
             }
-            if( customerSearchCriteria.getZipCode() != null )
-            {
-                query.addCriteria( Criteria.where( "zipCode" ).is( customerSearchCriteria.getZipCode() ) );
+            if (customerSearchCriteria.getZipCode() != null) {
+                query.addCriteria(Criteria.where("zipCode").is(customerSearchCriteria.getZipCode()));
             }
-            if( customerSearchCriteria.getCity() != null )
-            {
-                query.addCriteria( Criteria.where( "city" ).is( customerSearchCriteria.getCity() ) );
+            if (customerSearchCriteria.getCity() != null) {
+                query.addCriteria(Criteria.where("city").is(customerSearchCriteria.getCity()));
             }
-            if( customerSearchCriteria.getCountry() != null )
-            {
-                query.addCriteria( Criteria.where( "country" ).is( customerSearchCriteria.getCountry() ) );
+            if (customerSearchCriteria.getCountry() != null) {
+                query.addCriteria(Criteria.where("country").is(customerSearchCriteria.getCountry()));
             }
-            List<OpCustomer> opCustomers = mongoTemplate.find( query, OpCustomer.class );
+            List<OpCustomer> opCustomers = mongoTemplate.find(query, OpCustomer.class);
 
-            List<Customer> response = opCustomers.stream().map( opCustomer -> customerMapper.toDto( opCustomer ) ).collect( Collectors.toList() );
-            return new Response<>( response, response.size() );
-        }
-        catch( Exception ex )
-        {
-            throw new ResponseError( ex );
+            List<Customer> response = opCustomers.stream().map(opCustomer -> customerMapper.toDto(opCustomer)).collect(Collectors.toList());
+            return new Response<>(response, response.size());
+        } catch (Exception ex) {
+            throw new ResponseError(ex);
         }
     }
 
     @Override
-    public Response<Customer> saveCustomer( Customer customer ) throws ResponseError
-    {
-        try
-        {
-            OpCustomer saveResponse = customerRepository.save( customerMapper.toEntity( customer ) );
-            return new Response<>( customerMapper.toDto( saveResponse ) );
-        }
-        catch( Exception ex )
-        {
-            throw new ResponseError( ex );
+    public Response<Customer> saveCustomer(Customer customer) throws ResponseError {
+        try {
+            OpCustomer saveResponse = customerRepository.save(customerMapper.toEntity(customer));
+            return new Response<>(customerMapper.toDto(saveResponse));
+        } catch (Exception ex) {
+            throw new ResponseError(ex);
         }
     }
 
     @Override
-    public Response<Customer> updateCustomer( Customer customer ) throws ResponseError
-    {
-        try
-        {
-            OpCustomer updateResponse = customerRepository.save( customerMapper.toEntity( customer ) );
-            return new Response<>( customerMapper.toDto( updateResponse ) );
-        }
-        catch( Exception ex )
-        {
-            throw new ResponseError( ex );
+    public Response<Customer> updateCustomer(Customer customer) throws ResponseError {
+        try {
+            OpCustomer updateResponse = customerRepository.save(customerMapper.toEntity(customer));
+            return new Response<>(customerMapper.toDto(updateResponse));
+        } catch (Exception ex) {
+            throw new ResponseError(ex);
         }
     }
 
     @Override
-    public Response<Customer> patchCustomer( long id, Map<Object,Object> fields ) throws ResponseError
-    {
-        try
-        {
-            final OpCustomer[] patchResponse = { new OpCustomer() };
-            customerRepository.findById( id ).ifPresent( opCustomer -> fields.forEach( ( key, value ) ->
+    public Response<Customer> patchCustomer(long id, Map<Object, Object> fields) throws ResponseError {
+        try {
+            final OpCustomer[] patchResponse = {new OpCustomer()};
+            customerRepository.findById(id).ifPresent(opCustomer -> fields.forEach((key, value) ->
             {
-                Field field = ReflectionUtils.findField( OpCustomer.class, ( String ) key );
-                if( field != null )
-                {
-                    field.setAccessible( true );
-                    ReflectionUtils.setField( field, opCustomer, value );
-                    patchResponse[0] = customerRepository.save( opCustomer );
+                Field field = ReflectionUtils.findField(OpCustomer.class, (String) key);
+                if (field != null) {
+                    field.setAccessible(true);
+                    ReflectionUtils.setField(field, opCustomer, value);
+                    patchResponse[0] = customerRepository.save(opCustomer);
                 }
-            } ) );
-            return new Response<>( customerMapper.toDto( patchResponse[0] ) );
-        }
-        catch( Exception ex )
-        {
-            throw new ResponseError( ex );
+            }));
+            return new Response<>(customerMapper.toDto(patchResponse[0]));
+        } catch (Exception ex) {
+            throw new ResponseError(ex);
         }
     }
 
     @Override
-    public Response<Void> deleteCustomer( long id ) throws ResponseError
-    {
-        try
-        {
-            if( !customerRepository.existsById( id ) )
-            {
-                return new Response<>( Status.ERROR );
+    public Response<Void> deleteCustomer(long id) throws ResponseError {
+        try {
+            if (!customerRepository.existsById(id)) {
+                return new Response<>(Status.ERROR);
             }
-            customerRepository.deleteById( id );
-            return new Response<>( Status.SUCCESS );
-        }
-        catch( Exception ex )
-        {
-            throw new ResponseError( ex );
+            customerRepository.deleteById(id);
+            return new Response<>(Status.SUCCESS);
+        } catch (Exception ex) {
+            throw new ResponseError(ex);
         }
     }
 }
